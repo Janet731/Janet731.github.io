@@ -6,11 +6,6 @@ theme = "LoveIt"
 # website title
 title = "Janet's Blog"
 
-# language code ["en", "zh-CN", "fr", "pl", ...]
-languageCode = "zh-CN"
-# language name ["English", "简体中文", "Français", "Polski", ...]
-languageName = "简体中文"
-
 # Author config
 [author]
   name = "Janet"
@@ -66,7 +61,7 @@ languageName = "简体中文"
       # LoveIt 更改 | 0.2.7 主页显示的网站标题 (支持 HTML 格式)
       title = ""
       # 主页显示的网站副标题 (允许 HTML 格式)
-      subtitle = "这是我的全新的 Hugo 网站"
+      subtitle = "这是我的第一个博客网站！"
       # 是否为副标题显示打字机动画
       typeit = true
       # 是否显示社交账号
