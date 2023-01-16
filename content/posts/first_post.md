@@ -15,7 +15,11 @@ featuredImagePreview: "linefriends.png"
 > [test](../haha/newYear.html)
 > 打不开。。。
 
-## 测试一下插入bilibili视频
+## 测试一下插入音乐
+
+{{< music url="/music/marriedLife.m4a" name="Married Life(from \"Up\")" artist="Michael Giacchino" >}}
+
+## 测试一下插入视频
 
 这里是一个哔哩哔哩视频：
 
@@ -26,6 +30,6 @@ featuredImagePreview: "linefriends.png"
 {{< typeit >}}
 这是一个有 **打字动画** 的 *markdown段落*...
 
-`TODO`：测试一下插入[音乐](https://hugoloveit.com/zh-cn/theme-documentation-music-shortcode/)和[地图](https://hugoloveit.com/zh-cn/theme-documentation-mapbox-shortcode/)
+`TODO`：测试一下插入[地图](https://hugoloveit.com/zh-cn/theme-documentation-mapbox-shortcode/)
 {{< /typeit >}}
 
