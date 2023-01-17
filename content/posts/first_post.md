@@ -33,3 +33,8 @@ featuredImagePreview: "linefriends.png"
 `TODO`：测试一下插入[地图](https://hugoloveit.com/zh-cn/theme-documentation-mapbox-shortcode/)
 {{< /typeit >}}
 
+## 测试一下插入地图
+
+这是我的好宿舍：
+{{< mapbox lng=116.3233 lat=40.00103 zoom=12 >}}
+
