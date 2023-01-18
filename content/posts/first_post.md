@@ -38,3 +38,4 @@ featuredImagePreview: "linefriends.png"
 这是我的好宿舍：
 {{< mapbox lng=116.3233 lat=40.00103 zoom=12 >}}
 
+...失败了

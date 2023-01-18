@@ -61,7 +61,7 @@ title = "Janet's Blog"
       # LoveIt 更改 | 0.2.7 主页显示的网站标题 (支持 HTML 格式)
       title = ""
       # 主页显示的网站副标题 (允许 HTML 格式)
-      subtitle = "这是我的第一个博客网站！"
+      subtitle = "我的第一个博客网站！（没有技术，我是废物）"
       # 是否为副标题显示打字机动画
       typeit = true
       # 是否显示社交账号
@@ -153,3 +153,30 @@ title = "Janet's Blog"
     RootMe= ""
     Phone = ""
     Email = "jollyjanet2002@outlook.com"
+
+# 显示搜索结果
+  [outputs]
+    home = ["HTML", "RSS", "JSON"]
+
+
+# 增加个搜索功能
+  [params.search]
+    enable = true
+    # 搜索引擎的类型 ["lunr", "algolia"]
+    type = "lunr"
+    # 文章内容最长索引长度
+    contentLength = 4000
+    # 搜索框的占位提示语
+    placeholder = ""
+    #  最大结果数目
+    maxResultLength = 10
+    #  结果内容片段长度
+    snippetLength = 50
+    #  搜索结果中高亮部分的 HTML 标签
+    highlightTag = "em"
+    #  是否在搜索索引中使用基于 baseURL 的绝对路径
+    absoluteURL = false
+    [params.search.algolia]
+      index = ""
+      appID = ""
+      searchKey = ""
