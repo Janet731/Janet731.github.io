@@ -11,8 +11,8 @@ featuredImagePreview: "muyubackground.png"
 <html lang="en">
     <body>
         <p>这回是自己缝的前端代码😌所以比较简陋捏🥺</p>
-        <div>
-            <p id="virtue">功德+1</p>
+        <p id="allVirtue" style="opacity: 100%;">累计功德：0</p>
+        <div id="content">
         </div>
         <div>
             <button id="muyu"></button>
@@ -21,17 +21,13 @@ featuredImagePreview: "muyubackground.png"
 </html>
 
 <style>
-    body {
-        padding: 5%;
-    }
     p{
         font-family: Arial, Helvetica, sans-serif;
         font-size: large;
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 0px;
+        margin-top: 10px;
         opacity: 0;
-       /* animation: fadeInAnimation ease 1.5s;
-        animation-fill-mode: forwards; 设置样式以在动画不播放时应用元素。forward是设置动画结束后，使用元素的结束属性值*/
     }
     @keyframes fadeInAnimation { 
         0% { 
@@ -85,20 +81,39 @@ featuredImagePreview: "muyubackground.png"
     const audio = new Audio("https://cdn2.ear0.com:3321/preview?soundid=19572&type=mp3");
     const buttons = document.querySelectorAll("button");
 
+    var count = 0;
+    var countVirtue = 0;
+
     buttons.forEach(button => {
         button.addEventListener("click", () => {
             audio.play();
-            const myElement = document.getElementById("virtue");
-            myElement.style.animation = "fadeInAnimation ease 1s"
+            let div = document.createElement("p");
+            let randint = Math.floor(Math.random() * 100);
+            let textNode = document.createTextNode("功德+" + randint);
+            let updateVirtue = document.getElementById("allVirtue");
+            countVirtue += randint;
+            updateVirtue.textContent = "累计功德：" + countVirtue;
+            div.id = "virtue" + count;
+            count += 1;
+            div.appendChild(textNode); //先把文本给div元素
+            div.style.lineHeight = 2; //让div有换行效果
+            let contentDiv = document.getElementById('content');
+            //把div元素添加至id为content的节点中
+            contentDiv.appendChild(div);
+            const myElement = document.getElementById("virtue" + (count - 1));
+            myElement.style.animation = "fadeInAnimation ease 1.5s"
             myElement.style.animationFillMode = "forwards;"
-            setTimeout("emptyAnimation()", 1500);
+            setTimeout((myEle) => {
+                myEle.style.animation = "";
+                myEle.style.animationFillMode = "";
+                myEle.style.display = "none";
+                }, 1500, myElement);
         });
     });
 
-    function emptyAnimation(){
-        const myElement = document.getElementById("virtue");
-        myElement.style.animation = "";
-        myElement.style.animationFillMode = "";
-        myElement.style.opacity = "0";
+    function emptyAnimation(myEle){
+        myEle.style.animation = "";
+        myEle.style.animationFillMode = "";
+        myEle.style.display = "none";
     }
 </script>
