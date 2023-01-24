@@ -15,7 +15,7 @@ featuredImagePreview: "muyubackground.png"
             <p id="virtue">功德+1</p>
         </div>
         <div>
-            <button></button>
+            <button id="muyu"></button>
         </div>
     </body>
 </html>
@@ -50,8 +50,9 @@ featuredImagePreview: "muyubackground.png"
         background: url("https://th.bing.com/th/id/R.59981a19de38a275860037cf9a4248e6?rik=%2b2qXG4PHQ3Ug8A&riu=http%3a%2f%2fimg.91ddcc.com%2f14115262844469.jpg&ehk=QnQWD1UEOqabeSbV2dd4f3siHVpNSHnUKjSNu0XN1LI%3d&risl=&pid=ImgRaw&r=0");
         background-repeat:no-repeat ;
         background-size:95% 95%;
-        width: 90%;
-        height: 50vh;
+        width: 100%;
+        height: 0px; 
+        padding-bottom: 66.5%;
         border: 1px;
     }
     button:hover{
@@ -70,14 +71,16 @@ featuredImagePreview: "muyubackground.png"
         background-size:105% 105%;
         border: 1px;
         /* from https://blog.csdn.net/m0_37343874/article/details/108274219 */
-        -webkit-box-shadow: 10px 10px 99px 6px rgb(255, 248, 123);
-        -moz-box-shadow: 10px 10px 99px 6px rgb(255, 248, 123);
-        box-shadow: 10px 10px 99px 6px rgb(255, 248, 123);
+        -webkit-box-shadow: 10px 10px 150px 10px rgb(255, 248, 123);
+        -moz-box-shadow: 10px 10px 150px 10px rgb(255, 248, 123);
+        box-shadow: 10px 10px 150px 10px rgb(255, 248, 123);
     }
 </style>
 
 <script lang="js">
     // 救命根本不会搞
+    const button = document.getElementById("muyu")
+    button.style.height = button.style.width * 0.665;
 
     const audio = new Audio("https://cdn2.ear0.com:3321/preview?soundid=19572&type=mp3");
     const buttons = document.querySelectorAll("button");
