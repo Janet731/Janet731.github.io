@@ -1,0 +1,157 @@
+---
+title: "有点魔性的动态爱心❤️"
+date: 2023-01-25T22:26:16+08:00
+draft: false
+tags: ["html", "frontend"]
+categories: ["一些网上找到的有意思的html项目"]
+featuredImagePreview: "hearts.png"
+---
+
+<a href="https://blog.csdn.net/m0_51311990/article/details/125117079?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-4-125117079-blog-116450910.pc_relevant_3mothn_strategy_recovery&spm=1001.2101.3001.4242.3&utm_relevant_index=7">来源网站</a>
+
+<p>输入新颜色: </p>
+<input type="text" id="colorInput" placeholder="example: “#000000”">
+<button id="showColorButton">view color</button>
+<div id="showColor"></div>
+<p>输入希望显示的所有颜色: </p>
+<input id="allColorInput" type="text" name="colorScript" value="['#e03776','#8f3e98','#4687bf','#3bab6f','#f9c25e','#f47274']">
+<button id="setColorButton">set colors</button>
+
+<svg id="hearts" viewBox="-600 -400 1200 800" preserveAspectRatio="xMidYMid slice">
+  
+    <defs>
+        
+    <symbol  id="heart" viewBox="-69 -16 138 138">
+        
+    <path d="M0,12
+             C 50,-30 110,50  0,120
+             C-110,50 -50,-30 0,12z"/>
+        
+    </symbol>
+     
+    </defs>
+     
+</svg>
+
+<style>
+    #showColor {
+        position: relative;
+        top: -20px;
+        left: 300px;
+        width: 20px;
+        height: 20px;
+        background-color: #000000;
+    }
+    #allColorInput {
+        width: 70%;
+        margin-bottom: 20px;
+    }
+</style>
+     
+<script lang="js">
+    function CheckIsColor(bgVal) {
+        // copied from https://blog.csdn.net/A_linyuan/article/details/108191740
+        let type='';
+        if(/^rgb\(/.test(bgVal)){
+            //如果是rgb开头，200-249，250-255，0-199
+            type = "^[rR][gG][Bb][\(]([\\s]*(2[0-4][0-9]|25[0-5]|[01]?[0-9][0-9]?)[\\s]*,){2}[\\s]*(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)[\\s]*[\)]{1}$";
+        }else if(/^rgba\(/.test(bgVal)){
+            //如果是rgba开头，判断0-255:200-249，250-255，0-199 判断0-1：0 1 1.0 0.0-0.9
+            type = "^[rR][gG][Bb][Aa][\(]([\\s]*(2[0-4][0-9]|25[0-5]|[01]?[0-9][0-9]?)[\\s]*,){3}[\\s]*(1|1.0|0|0.[0-9])[\\s]*[\)]{1}$";
+        }else if(/^#/.test(bgVal)){
+            //六位或者三位
+            type = "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$"
+        }else if(/^hsl\(/.test(bgVal)){
+            //判断0-360 判断0-100%(0可以没有百分号)
+            type = "^[hH][Ss][Ll][\(]([\\s]*(2[0-9][0-9]|360｜3[0-5][0-9]|[01]?[0-9][0-9]?)[\\s]*,)([\\s]*((100|[0-9][0-9]?)%|0)[\\s]*,)([\\s]*((100|[0-9][0-9]?)%|0)[\\s]*)[\)]$";
+        }else if(/^hsla\(/.test(bgVal)){
+            type = "^[hH][Ss][Ll][Aa][\(]([\\s]*(2[0-9][0-9]|360｜3[0-5][0-9]|[01]?[0-9][0-9]?)[\\s]*,)([\\s]*((100|[0-9][0-9]?)%|0)[\\s]*,){2}([\\s]*(1|1.0|0|0.[0-9])[\\s]*)[\)]$";
+        }
+        let re = new RegExp(type);
+        if (bgVal.match(re) == null){
+            return "invalid"
+        }else{
+            return "valid"
+        }
+    }
+    var colorStr = "[\"#e03776\",\"#8f3e98\",\"#4687bf\",\"#3bab6f\",\"#f9c25e\",\"#f47274\"]"
+    var colors = ["#e03776","#8f3e98","#4687bf","#3bab6f","#f9c25e","#f47274"];
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const SVG_XLINK = "http://www.w3.org/1999/xlink";
+    var use;
+     
+    let heartsRy = []
+     
+    function useTheHeart(n){
+      this.use = document.createElementNS(SVG_NS, 'use');
+      this.use.n = n;
+      this.use.setAttributeNS(SVG_XLINK, 'xlink:href', '#heart');
+      this.use.setAttributeNS(null, 'transform', `scale(${use.n})`);
+      this.use.setAttributeNS(null, 'fill', colors[n%colors.length]);
+      this.use.setAttributeNS(null, 'x', -69);
+      this.use.setAttributeNS(null, 'y', -69);
+      this.use.setAttributeNS(null, 'width', 138);
+      this.use.setAttributeNS(null, 'height', 138);
+      
+      heartsRy.push(this.use);
+      hearts.appendChild(this.use);
+    }
+     
+    for(let n = 18; n >= 0; n--){useTheHeart(n)}
+     
+    function Frame(){
+      window.requestAnimationFrame(Frame);
+      for(let i = 0; i < heartsRy.length; i++){
+        if(heartsRy[i].n < 18){heartsRy[i].n +=.01
+         }else{
+         heartsRy[i].n = 0;
+         hearts.appendChild(heartsRy[i])
+        }
+        heartsRy[i].setAttributeNS(null, 'transform', `scale(${heartsRy[i].n})`);
+      }
+    }
+    
+    Frame();
+
+    let button = document.getElementById("showColorButton");
+    button.addEventListener("click", () => {
+        const inputColor = document.getElementById("colorInput");
+        const colorBlock = document.getElementById("showColor");
+        if(CheckIsColor(inputColor.value) === "valid"){
+            colorBlock.style.backgroundColor = inputColor.value;
+        }
+    });
+
+    let button2 = document.getElementById("setColorButton");
+    button2.addEventListener("click", () => {
+        const inputColors = document.getElementById("allColorInput");
+        try{
+            var colorList = eval(inputColors.value);
+            // check
+            for (let i = 0; i < colorList.length; i++) {
+                if(CheckIsColor(inputColors.value) === "invalid"){
+                    throw "invalid color";
+                }
+            }
+            this.colors = colorList;
+            console.log('color set');
+            //this.use.setAttributeNS(null, 'fill', colors[18%colors.length]);
+            //heartsRy.push(this.use);
+            //hearts.appendChild(this.use);
+            // empty hearts
+            heartsRy = [];
+            console.log(hearts);
+            for (let i = 0; i < 19; i++) {
+                hearts.removeChild(hearts.lastChild);
+            }
+            console.log('after', hearts);
+            for(let n = 18; n >= 0; n--){useTheHeart(n)}
+            console.log(hearts);
+            console.log('frame');
+        }
+        catch (e){
+            console.log(e);
+            return;
+        }
+    });
+</script>
