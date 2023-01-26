@@ -4,7 +4,7 @@ date: 2023-01-18T23:47:09+08:00
 draft: false
 tags: ["lifehack"]
 categories: ["好没用的技能"]
-featuredImagePreview: "tampermonkeylogo.png"
+featuredImagePreview: "/featureImages/tampermonkeylogo.png"
 ---
 不想再给视频网站、百度网盘充会员了😠！可以用TamperMonkey成为白嫖滴神🤩
 

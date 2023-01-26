@@ -4,7 +4,7 @@ date: 2023-01-14T23:05:24+08:00
 draft: false
 tags: ["test"]
 categories: ["test"]
-featuredImagePreview: "linefriends.png"
+featuredImagePreview: "/featureImages/linefriends.png"
 ---
 
 # 测试一下各种功能

@@ -4,7 +4,7 @@ date: 2023-01-17T00:56:00+08:00
 draft: true
 tags: ["games"]
 categories: ["游戏"]
-featuredImagePreview: "steam-winter-sale.png"
+featuredImagePreview: "/featureImages/steam-winter-sale.png"
 ---
 # M1 Mac上能玩的游戏总结🎮
 

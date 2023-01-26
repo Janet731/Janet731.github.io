@@ -4,7 +4,7 @@ date: 2023-01-24T21:40:20+08:00
 draft: false
 tags: ["lifehack"]
 categories: ["好没用的技能"]
-featuredImagePreview: "apps.png"
+featuredImagePreview: "/featureImages/apps.png"
 ---
 
 ## 1. Runcat
