@@ -10,11 +10,12 @@ featuredImagePreview: "hearts.png"
 <a href="https://blog.csdn.net/m0_51311990/article/details/125117079?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-4-125117079-blog-116450910.pc_relevant_3mothn_strategy_recovery&spm=1001.2101.3001.4242.3&utm_relevant_index=7">来源网站</a>
 
 <p>输入新颜色: </p>
-<input type="text" id="colorInput" placeholder="example: “#000000”">
+<input type="text" id="colorInput" placeholder="e.g.“#000000”,“green”">
 <button id="showColorButton">view color</button>
 <div id="showColor"></div>
-<p>输入希望显示的所有颜色: </p>
-<input id="allColorInput" type="text" name="colorScript" value="['#e03776','#8f3e98','#4687bf','#3bab6f','#f9c25e','#f47274']">
+<button id="addColorButton">add color</button>
+<p style="margin-top: -10px;">输入希望显示的所有颜色（请用半角逗号“,”隔开！）: </p>
+<input id="allColorInput" type="text" name="colorScript" value="#e03776,#8f3e98,#4687bf,#3bab6f,#f9c25e,#f47274">
 <button id="setColorButton">set colors</button>
 
 <svg id="hearts" viewBox="-600 -400 1200 800" preserveAspectRatio="xMidYMid slice">
@@ -35,12 +36,16 @@ featuredImagePreview: "hearts.png"
 
 <style>
     #showColor {
-        position: relative;
-        top: -20px;
-        left: 300px;
-        width: 20px;
-        height: 20px;
+        margin-top: 10px;
+        width: 25px;
+        height: 25px;
         background-color: #000000;
+    }
+    #addColorButton {
+        position: relative;
+        top: -25px;
+        left: 50px;
+        margin-bottom: -10px;
     }
     #allColorInput {
         width: 70%;
@@ -122,32 +127,48 @@ featuredImagePreview: "hearts.png"
         }
     });
 
-    let button2 = document.getElementById("setColorButton");
-    button2.addEventListener("click", () => {
-        const inputColors = document.getElementById("allColorInput");
-        try{
-            var colorList = eval(inputColors.value);
-            // check
-            for (let i = 0; i < colorList.length; i++) {
-                if(CheckIsColor(inputColors.value) === "invalid"){
-                    throw "invalid color";
-                }
-            }
-            this.colors = colorList;
-            console.log('color set');
-            //this.use.setAttributeNS(null, 'fill', colors[18%colors.length]);
-            //heartsRy.push(this.use);
-            //hearts.appendChild(this.use);
+    let button3 = document.getElementById("addColorButton");
+    button3.addEventListener("click", () => {
+        const inputColor = String(document.getElementById("showColor").style.backgroundColor);
+        if(CheckIsColor(inputColor) === "valid"){
+            this.colors.push(inputColor)
+            console.log('colors: ', this.colors);
+            const inputColors = document.getElementById("allColorInput");
+            inputColors.value = String(this.colors);
             // empty hearts
             heartsRy = [];
             console.log(hearts);
             for (let i = 0; i < 19; i++) {
                 hearts.removeChild(hearts.lastChild);
             }
-            console.log('after', hearts);
+            // console.log('after', hearts);
             for(let n = 18; n >= 0; n--){useTheHeart(n)}
+        }
+    });
+
+    let button2 = document.getElementById("setColorButton");
+    button2.addEventListener("click", () => {
+        const inputColors = document.getElementById("allColorInput");
+        try{
+            // var colorList = eval(inputColors.value);
+            var colorList = inputColors.value.split(",");
+            console.log(colorList);
+            // check
+            for (let i = 0; i < colorList.length; i++) {
+                if(CheckIsColor(colorList[i]) === "invalid"){
+                    throw "invalid color";
+                }
+            }
+            this.colors = colorList;
+            console.log('color set');
+            // empty hearts
+            heartsRy = [];
             console.log(hearts);
-            console.log('frame');
+            for (let i = 0; i < 19; i++) {
+                hearts.removeChild(hearts.lastChild);
+            }
+            // console.log('after', hearts);
+            for(let n = 18; n >= 0; n--){useTheHeart(n)}
         }
         catch (e){
             console.log(e);
