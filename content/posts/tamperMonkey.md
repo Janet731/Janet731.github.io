@@ -60,3 +60,28 @@ mac上安装aria2可以通过在终端下输入`brew install aria2`，或者在[
 {{< image src="/tamperMonkey5.png" caption="可以看到正在下载的内容和下载速度" >}}
 
 *提醒：这个插件在第二次下载时就要求扫码关注微信公众号了。。*
+
+## 在iPhone/iPad safari 上使用上述脚本
+
+iOS端好像无法使用tampermonkey，但是有一个同样好用的替代品：[userscripts](https://github.com/quoid/userscripts)
+在app store搜索下载`userscripts` app，打开后会提供配置方法：
+
+1. 在iphone中设置脚本存储地址（直接在`文件`app中随便找个地方新建个文件夹就行）
+   
+2. 在设置-safari-拓展中设置打开`userscripts`并设置为在任意网站都允许使用该插件。
+
+   {{< image src="/userScripts1.png" caption="在safari设置中配置插件" zoom="50%" >}}
+
+   如果正确设置了safari左下角会出现拼图🧩logo，点击就会进入插件页面
+
+3. 在浏览器中打开[greasy fork](https://greasyfork.org/zh-CN)网站下载想要的脚本，点击🧩-userscripts，该插件会提醒：“监测到脚本，单击下载”后就可以导入该脚本。这里我导入了“全网vip视频免费解析”和“百度文库破解”的插件。
+
+   {{< image src="/userScripts2.PNG" caption="userscripts正在下载greasy fork上的脚本" >}}
+
+4. 可以看到在网页端打开腾讯视频时，可以利用“全网vip视频免费解析”插件观看vip独播的《三体》电视剧。
+
+   {{< image src="/userScripts3.PNG" caption="利用safari实现快乐白嫖🤩" >}}
+
+   *提醒：爱奇艺会强制跳转app store😢，我最后想到的解决方法是在电脑上利用脚本打开资源网站，然后复制该网站地址，在手机上打开。*
+
+同样的方法还可以用来配置“拦截100”等自带脚本的浏览器插件app
