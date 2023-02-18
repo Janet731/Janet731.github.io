@@ -14,8 +14,8 @@ featuredImagePreview: "/featureImages/hearts.png"
 <button id="showColorButton">view color</button>
 <div id="showColor"></div>
 <button id="addColorButton">add color</button>
-<p style="margin-top: -10px;">输入希望显示的所有颜色（请用半角逗号“,”隔开！）: </p>
-<input id="allColorInput" type="text" name="colorScript" value="#e03776,#8f3e98,#4687bf,#3bab6f,#f9c25e,#f47274">
+<p style="margin-top: -10px;">输入希望显示的所有颜色（请用半角分号“;”隔开！）: </p>
+<input id="allColorInput" type="text" name="colorScript" value="#e03776;#8f3e98;#4687bf;#3bab6f;#f9c25e;#f47274">
 <button id="setColorButton">set colors</button>
 
 <svg id="hearts" viewBox="-600 -400 1200 800" preserveAspectRatio="xMidYMid slice">
@@ -134,7 +134,10 @@ featuredImagePreview: "/featureImages/hearts.png"
             this.colors.push(inputColor)
             console.log('colors: ', this.colors);
             const inputColors = document.getElementById("allColorInput");
-            inputColors.value = String(this.colors);
+            inputColors.value = "";
+            for (let i = 0; i < this.colors.length; i++) {
+                inputColors.value += String(this.colors[i]) + ";";
+            }
             // empty hearts
             heartsRy = [];
             console.log(hearts);
@@ -151,7 +154,7 @@ featuredImagePreview: "/featureImages/hearts.png"
         const inputColors = document.getElementById("allColorInput");
         try{
             // var colorList = eval(inputColors.value);
-            var colorList = inputColors.value.split(",");
+            var colorList = inputColors.value.split(";");
             console.log(colorList);
             // check
             for (let i = 0; i < colorList.length; i++) {

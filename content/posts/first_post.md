@@ -39,3 +39,5 @@ featuredImagePreview: "/featureImages/linefriends.png"
 {{< mapbox lng=116.3233 lat=40.00103 zoom=12 >}}
 
 ...失败了
+
+23.03.09: 不知道问什么上次github显示部署成功了，但是访问网站后只能显示README...有点离谱，在`actions`中`Re-run all jobs`就好了。
