@@ -1,0 +1,612 @@
+---
+title: "Gemini生成的手势识别网站☔️"
+date: 2025-12-07T01:02:37+08:00
+draft: false
+tags: ["html", "frontend"]
+categories: ["一些网上找到的有意思的html项目"]
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Embedded Aesthetic Controller</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --ui-color: #d0d0d0;
+            --ui-muted: #808080;
+            --ui-bg: #050505;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        .weather-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            min-height: 400px;
+            overflow: hidden;
+            background-color: var(--ui-bg);
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Roboto", "Segoe UI", sans-serif;
+            user-select: none;
+            color: var(--ui-color);
+        }
+
+        .input_video { display: none; }
+
+        #output_canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            padding: 18px 22px;
+        }
+
+        .hud-text {
+            position: absolute;
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            text-shadow: 0 0 6px rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.35);
+            padding: 4px 10px;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        #switch-btn {
+            position: absolute;
+            top: 22px;
+            right: 22px;
+            border: 1px solid rgba(255,255,255,0.35);
+            padding: 8px 22px;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.25s ease;
+            color: var(--ui-color);
+            background: radial-gradient(circle at top, rgba(255,255,255,0.06), rgba(0,0,0,0.8));
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        #switch-btn:active {
+            background: rgba(255,255,255,0.85);
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            #switch-btn {
+                top: auto;
+                bottom: 26px;
+                right: 50%;
+                transform: translateX(50%);
+                width: 72%;
+                text-align: center;
+                padding: 12px 0;
+                font-size: 13px;
+            }
+        }
+
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at top, rgba(255,255,255,0.02), rgba(0,0,0,0.96));
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .start-btn {
+            border: 1px solid rgba(255,255,255,0.85);
+            padding: 10px 34px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            font-size: 11px;
+            background: transparent;
+        }
+        .start-btn:active {
+            background: white;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+<div id="weather-wrapper" class="weather-container">
+    <video class="input_video" playsinline webkit-playsinline></video>
+    <canvas id="output_canvas"></canvas>
+
+    <div id="ui-layer">
+        <div id="mode-display" class="hud-text" style="top: 22px; left: 22px;">
+            MODE: <span style="color:#ffffff" id="mode-text">RAIN</span>
+        </div>
+        <div id="hand-state" class="hud-text" style="top: 58px; left: 22px; border-top:none;">
+            STATUS: <span id="status-text">WAITING...</span>
+        </div>
+        <!-- 底部一条极简信息条，增加“系统感” -->
+        <div class="hud-text" style="bottom: 22px; left: 22px; font-size:9px; opacity:0.7;">
+            BB-LINK / HAND-DRIVEN WEATHER INTERFACE
+        </div>
+        <div id="switch-btn">SWITCH MODE</div>
+    </div>
+
+    <div id="start-screen">
+        <h1 style="color:white; margin-bottom: 14px; font-weight: 300; font-size: 18px; letter-spacing: 0.38em; text-transform: uppercase;">
+            BB-LINK SYSTEM
+        </h1>
+        <div class="start-btn" onclick="startApp()">INITIALIZE</div>
+        <div class="loading-text" id="loading-msg" style="display:none; color: #777; margin-top: 12px; font-size: 10px; letter-spacing: 0.25em;">
+            CONNECTING...
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const wrapper = document.getElementById('weather-wrapper');
+    const canvas = document.getElementById('output_canvas');
+    const ctx = canvas.getContext('2d');
+    const videoElement = wrapper.querySelector('.input_video');
+
+    let width, height;
+    let mode = 'RAIN';
+    let handState = 'NONE';
+    let particles = [];
+    let maxParticles = 300;
+
+    function resize() {
+        width = wrapper.clientWidth;
+        height = wrapper.clientHeight;
+
+        const dpr = window.devicePixelRatio || 1;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);   // 避免多次 scale 累积
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+
+        width = wrapper.clientWidth;
+        height = wrapper.clientHeight;
+
+        maxParticles = Math.floor(width * height * 0.00035);
+        if (maxParticles > 380) maxParticles = 380;
+    }
+
+    window.addEventListener('resize', resize);
+    setTimeout(resize, 100);
+
+    function drawImageCover(img) {
+        const screenRatio = width / height;
+        const videoRatio = img.width / img.height;
+        let drawWidth, drawHeight, offsetX, offsetY;
+
+        if (screenRatio > videoRatio) {
+            drawWidth = width; drawHeight = width / videoRatio;
+            offsetX = 0; offsetY = (height - drawHeight) / 2;
+        } else {
+            drawHeight = height; drawWidth = height * videoRatio;
+            offsetX = (width - drawWidth) / 2; offsetY = 0;
+        }
+
+        ctx.save();
+        ctx.filter = 'grayscale(100%) brightness(45%) contrast(135%)';
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        ctx.restore();
+
+        return { scale: drawWidth / img.width, offsetX, offsetY, videoWidth: img.width, videoHeight: img.height };
+    }
+
+    let audioCtx, rainGainNode;
+    let musicInterval = null;
+    let lastOut = 0;
+
+    function initAudio() {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+
+        const bufferSize = 2 * audioCtx.sampleRate;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            let white = Math.random() * 2 - 1;
+            output[i] = (lastOut + (0.02 * white)) / 1.02;
+            lastOut = output[i];
+            output[i] *= 3.5;
+        }
+        const rainSource = audioCtx.createBufferSource();
+        rainSource.buffer = noiseBuffer;
+        rainSource.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 800;
+
+        rainGainNode = audioCtx.createGain();
+        rainGainNode.gain.value = 0;
+
+        rainSource.connect(filter);
+        filter.connect(rainGainNode);
+        rainGainNode.connect(audioCtx.destination);
+        rainSource.start();
+    }
+
+    function playNote(freq, duration) {
+        if(!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        osc.start(now);
+        osc.stop(now + duration);
+    }
+
+
+    function toggleMusic(shouldPlay) {
+    // 使用稍微好听一点的合成旋律（简单叮当铃声）
+    if (!audioCtx) return;
+
+    if (shouldPlay) {
+        if (musicInterval) return;
+
+        const pattern = [
+            329.63, 329.63, 329.63,   // E E E
+            329.63, 329.63, 329.63,   // E E E
+            329.63, 392.00, 261.63,   // E G C
+            293.66, 329.63          // D E
+        ];
+
+        let i = 0;
+        musicInterval = setInterval(() => {
+            const base = pattern[i];
+            // 做一个小和弦（主音 + 三度）
+            playNote(base, 0.25);
+            playNote(base * 1.25, 0.18);
+            i = (i + 1) % pattern.length;
+        }, 260);
+    } else {
+        if (musicInterval) {
+            clearInterval(musicInterval);
+            musicInterval = null;
+        }
+    }
+}
+
+
+    class Particle {
+        constructor(type) { this.reset(type); }
+        reset(type) {
+            this.x = Math.random() * width;
+            this.y = Math.random() * -150;
+            this.type = type;
+
+            if (type === 'rain') {
+                this.speed = Math.random() * 14 + 10;
+                this.length = Math.random() * 18 + 12;
+                this.wind = Math.random() * 0.6 + 0.3;   // 轻微斜向
+            } else {
+                this.speed = Math.random() * 1.2 + 0.6;
+                this.size = Math.random() * 2.2 + 1.2;
+            }
+            this.phase = Math.random() * Math.PI * 2;
+        }
+        update(isActive, isStopped) {
+            if (this.type === 'rain') {
+                if (isStopped) {
+                    // 停雨时：缓慢下滑，像雨停后的水珠
+                    this.y += 0.7;
+                } else {
+                    this.y += this.speed;
+                    this.x += this.wind * this.length * 0.25;
+                }
+            } else {
+                // --- 雪花 ---
+                if (!isStopped) {
+                    // 正常飘雪
+                    this.y += this.speed;
+                    this.x += Math.sin(this.y * 0.02 + this.phase) * 0.9;
+                }
+                // 停止时不更新坐标，让雪“冻结”在空中
+            }
+
+            if (this.y > height) {
+                if (isActive) this.reset(this.type);
+                else this.y = height + 150;
+            }
+        }
+        draw(isStopped) {
+            if (this.type === 'rain') {
+                if (isStopped) {
+                    // 停雨时：小水珠，略带高光
+                    ctx.fillStyle = 'rgba(235, 235, 240, 0.95)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 2.1, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                    ctx.beginPath();
+                    ctx.arc(this.x - 0.6, this.y - 0.8, 0.9, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    // 下雨时：长条斜线 + 渐变
+                    const x2 = this.x - this.wind * this.length;
+                    const y2 = this.y - this.length * 1.7;
+
+                    const g = ctx.createLinearGradient(this.x, this.y, x2, y2);
+                    g.addColorStop(0, 'rgba(255,255,255,0.0)');
+                    g.addColorStop(0.4, 'rgba(230,230,235,0.55)');
+                    g.addColorStop(1, 'rgba(200,200,210,0.1)');
+
+                    ctx.strokeStyle = g;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+            } else {
+                // 雪花
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+
+    function drawTree() {
+        const cx = width / 2;
+        const baseY = height * 0.84;
+        const s = Math.min(width, height) * 0.0013;
+
+        ctx.save();
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = "rgba(255,255,255,0.75)";
+        ctx.strokeStyle = "rgba(245,245,245,0.95)";
+        ctx.lineWidth = 1.5;
+
+        for(let i=0; i<4; i++) {
+            let size = (110 - i * 18) * s;
+            let yPos = baseY - (i * 58 * s);
+            let h = 150 * s;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, yPos - h);
+            ctx.lineTo(cx - size, yPos);
+            ctx.lineTo(cx + size, yPos);
+            ctx.closePath();
+            ctx.stroke();
+
+            let segs = 6 + i * 2;
+            for(let j=0; j<segs; j++) {
+                const t = j / (segs - 1);
+                const x = cx - size + (2*size) * t;
+                const y = yPos - h * 0.35 + Math.sin(t * Math.PI) * (6 * s);
+                ctx.beginPath();
+                ctx.arc(x, y, 1.5 * s, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(255,255,255,0.9)";
+                ctx.fill();
+            }
+        }
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(230,230,230,0.9)";
+        const trunkW = 18 * s;
+        const trunkH = 50 * s;
+        ctx.fillRect(cx - trunkW/2, baseY, trunkW, trunkH);
+
+        ctx.shadowBlur = 26;
+        ctx.shadowColor = "rgba(255,255,255,0.95)";
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(cx, baseY - (320 * s), 7 * s, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    let currentLayout = null;
+
+    function onResults(results) {
+        if (!width || !height) return;
+
+        ctx.clearRect(0, 0, width, height);
+        currentLayout = drawImageCover(results.image);
+
+        handState = 'NONE';
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            const landmarks = results.multiHandLandmarks[0];
+            const tips = [8, 12, 16, 20];
+            let extended = 0;
+            tips.forEach(idx => {
+                if (landmarks[idx].y < landmarks[idx - 2].y) extended++;
+            });
+            if (extended >= 4) handState = 'OPEN';
+            else if (extended <= 1) handState = 'FIST';
+            else handState = 'TRANSITION';
+
+            drawSkeleton(landmarks, currentLayout);
+        }
+
+        updateWeather();
+        updateUI();
+    }
+
+    function drawSkeleton(landmarks, layout) {
+        if (!layout) return;
+        ctx.strokeStyle = 'rgba(230, 230, 230, 0.35)';
+        ctx.lineWidth = 1;
+
+        const toScreen = (lm) => {
+            return {
+                x: lm.x * (layout.videoWidth * layout.scale) + layout.offsetX,
+                y: lm.y * (layout.videoHeight * layout.scale) + layout.offsetY
+            };
+        };
+
+        const connections = [
+            [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],
+            [5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],
+            [13,17],[17,18],[18,19],[19,20],[0,17]
+        ];
+
+        ctx.beginPath();
+        for (let conn of connections) {
+            const p1 = toScreen(landmarks[conn[0]]);
+            const p2 = toScreen(landmarks[conn[1]]);
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+        }
+        ctx.stroke();
+    }
+
+    let rainVol = 0;
+    function updateWeather() {
+        const isOpen = handState === 'OPEN';
+        const isFist = handState === 'FIST';
+
+        if (mode === 'RAIN') {
+            // ---- 雨天模式 ----
+            toggleMusic(false); // 雨天不放圣诞歌
+
+            // 张开手时持续生成雨滴
+            if (isOpen && particles.length < maxParticles) {
+                for (let i = 0; i < 2 && particles.length < maxParticles; i++) {
+                    particles.push(new Particle('rain'));
+                }
+            }
+
+            // 雨声音量随张手时间增加
+            if (isOpen) rainVol = Math.min(rainVol + 0.02, 0.8);
+            else        rainVol = Math.max(rainVol - 0.04, 0);
+            if (rainGainNode) rainGainNode.gain.value = rainVol;
+
+            particles.forEach(p => {
+                p.type = 'rain';
+                // isActive: 有无需要继续生成 / 循环；isStopped: 握拳则静止成水珠
+                p.update(isOpen || isFist, isFist);
+                p.draw(isFist);
+            });
+
+        } else { 
+            // ---- 雪天模式 ----
+            if (rainGainNode) rainGainNode.gain.value = 0;
+
+            const snowStopped = isFist; // 握拳时雪冻结
+
+            if (snowStopped) {
+                // 手握拳：显示树 + 播放圣诞音乐
+                toggleMusic(true);
+                drawTree();
+            } else {
+                // 松开手：树和音乐消失
+                toggleMusic(false);
+            }
+
+            // 张开手并且没有握拳时才持续生成雪
+            if (isOpen && !snowStopped && particles.length < maxParticles) {
+                for (let i = 0; i < 3 && particles.length < maxParticles; i++) {
+                    particles.push(new Particle('snow'));
+                }
+            }
+
+            particles.forEach(p => {
+                p.type = 'snow';
+                // isActive: 只有在没有 snowStopped 且张开手时才循环生成
+                // isStopped: 握拳时为 true → 雪冻结
+                p.update(isOpen && !snowStopped, snowStopped);
+                p.draw(snowStopped);
+            });
+        }
+
+        // 回收超出范围的粒子
+        for (let i = particles.length - 1; i >= 0; i--) {
+            if (particles[i].y > height + 80) particles.splice(i, 1);
+        }
+    }
+
+    function updateUI() {
+        const statusText = document.getElementById('status-text');
+        statusText.innerText = handState;
+        if (handState === 'FIST') {
+            statusText.style.color = '#ffffff';
+        } else if (handState === 'OPEN') {
+            statusText.style.color = '#cccccc';
+        } else {
+            statusText.style.color = '#888888';
+        }
+        document.getElementById('mode-text').innerText = mode;
+    }
+
+    document.getElementById('switch-btn').addEventListener('click', () => {
+        mode = mode === 'RAIN' ? 'SNOW' : 'RAIN';
+        particles = [];
+        if (mode === 'RAIN') toggleMusic(false);
+    });
+
+    window.startApp = function() {
+        wrapper.querySelector('.start-btn').style.display = 'none';
+        document.getElementById('loading-msg').style.display = 'block';
+
+        resize();
+        initAudio();
+
+        const hands = new Hands({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }});
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        hands.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await hands.send({image: videoElement});
+            },
+            width: 1280,
+            height: 720
+        });
+
+        camera.start().then(() => {
+            document.getElementById('start-screen').style.display = 'none';
+        }).catch(err => {
+            console.error(err);
+            document.getElementById('loading-msg').innerText = "ERROR: CHECK CAMERA PERMISSIONS OR HTTPS";
+        });
+    }
+})();
+</script>
+</body>
+</html>
